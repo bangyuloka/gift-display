@@ -1,3 +1,4 @@
+
 const { WebcastPushConnection } = require('tiktok-live-connector');
 
 let tiktok = null;
@@ -8,7 +9,7 @@ function onGift(callback) {
 }
 
 async function connect(username) {
-  if (tiktok) await disconnect(); // pastikan bersih
+  if (tiktok) await tiktok.disconnect();
   tiktok = new WebcastPushConnection(username);
 
   tiktok.on('gift', (data) => {
@@ -23,13 +24,4 @@ async function connect(username) {
   await tiktok.connect();
 }
 
-async function disconnect() {
-  if (tiktok) {
-    await tiktok.disconnect();
-    console.log('🔌 TikTok disconnected');
-    tiktok = null;
-  }
-}
-
-module.exports = { onGift, connect, disconnect };
-
+module.exports = { onGift, connect };
