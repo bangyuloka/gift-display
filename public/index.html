@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gift Display</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="gift-view">
+    <img id="avatar" class="avatar" src="" alt="avatar" />
+    <div id="nickname" class="nickname"></div>
+    <div class="thankyou" id="thankyou">thankyou</div>
+    <div id="placeholder" class="placeholder">tampilkan fotomu disini</div>
+  </div>
+
+  <script>
+    const avatar = document.getElementById("avatar");
+    const nickname = document.getElementById("nickname");
+    const thankyou = document.getElementById("thankyou");
+    const placeholder = document.getElementById("placeholder");
+
+    const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
+    const ws = new WebSocket(`${protocol}://${location.host}`);
+
+    ws.onmessage = (msg) => {
+      const data = JSON.parse(msg.data);
+      if (data.type === 'gift') {
+        avatar.src = data.user.avatar;
+        nickname.textContent = data.user.name;
+
+        avatar.style.display = 'block';
+        nickname.style.display = 'block';
+        thankyou.style.display = 'block';
+        placeholder.style.display = 'none';
+
+        setTimeout(() => {
+          avatar.style.display = 'none';
+          nickname.style.display = 'none';
+          thankyou.style.display = 'none';
+          placeholder.style.display = 'block';
+        }, 5000);
+      }
+    };
+  </script>
+</body>
+</html>

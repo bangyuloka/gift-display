@@ -1,0 +1,75 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gift Display</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+  body, html {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  font-family: Arial, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent; /* Ubah dari gradient ke transparan */
+}
+
+.gift-view {
+  text-align: center;
+  background: white; /* Tambahkan background putih */
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.avatar {
+  width: 30vw;
+  height: 30vw;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 5px solid #ccc;
+}
+
+.nickname {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-top: 1rem;
+}
+
+.thankyou {
+  font-size: 1.5rem;
+  margin-top: 0.5rem;
+  color: #555;
+}
+
+</style>
+</head>
+<body>
+  <div class="gift-view">
+    <img id="avatar" class="avatar" src="" alt="avatar" />
+    <div id="nickname" class="nickname"></div>
+    <div class="thankyou">thankyou</div>
+  </div>
+
+  <script>
+    const avatar = document.getElementById("avatar");
+    const nickname = document.getElementById("nickname");
+
+    const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
+    const ws = new WebSocket(`${protocol}://${location.host}`);
+
+    ws.onmessage = (msg) => {
+      const data = JSON.parse(msg.data);
+      if (data.type === 'gift') {
+        avatar.src = data.user.avatar;
+        nickname.textContent = data.user.name;
+      }
+    };
+  </script>
+</body>
+</html>

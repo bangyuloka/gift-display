@@ -1,0 +1,28 @@
+
+# Node modules
+node_modules/
+
+# Env file
+.env
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Runtime files
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Editor configs
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Railway / Deployment
+.env.production

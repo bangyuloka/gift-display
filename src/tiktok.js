@@ -1,0 +1,27 @@
+
+const { WebcastPushConnection } = require('tiktok-live-connector');
+
+let tiktok = null;
+let giftCallback = () => {};
+
+function onGift(callback) {
+  giftCallback = callback;
+}
+
+async function connect(username) {
+  if (tiktok) await tiktok.disconnect();
+  tiktok = new WebcastPushConnection(username);
+
+  tiktok.on('gift', (data) => {
+    if (data.giftType === 1 && !data.repeatEnd) return;
+    giftCallback({
+      name: data.nickname,
+      avatar: data.profilePictureUrl,
+      uniqueId: data.uniqueId || ''
+    });
+  });
+
+  await tiktok.connect();
+}
+
+module.exports = { onGift, connect };

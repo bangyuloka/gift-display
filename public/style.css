@@ -1,0 +1,51 @@
+
+body, html {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  font-family: Arial, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+}
+
+.gift-view {
+  text-align: center;
+  background: white;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.avatar {
+  width: 30vw;
+  height: 30vw;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 5px solid #ccc;
+  display: none;
+}
+
+.nickname {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-top: 1rem;
+  display: none;
+}
+
+.thankyou {
+  font-size: 1.5rem;
+  margin-top: 0.5rem;
+  color: #555;
+  display: none;
+}
+
+.placeholder {
+  font-size: 1.5rem;
+  font-style: italic;
+  color: #999;
+  margin-top: 1rem;
+  display: block;
+}
