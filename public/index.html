@@ -5,20 +5,75 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gift Display</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    .view { display: none; }
+    .active { display: block; }
+    .gift-view-container, .klasemen-view-container {
+      text-align: center;
+      background: white;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    .thankyou {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      display: block;
+    }
+    .nickname {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      display: block;
+    }
+    .avatar {
+      width: 200px;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 5px solid #ccc;
+      display: block;
+      margin: 0 auto;
+    }
+  </style>
 </head>
 <body>
-  <div class="gift-view">
-    <img id="avatar" class="avatar" src="" alt="avatar" />
-    <div id="nickname" class="nickname"></div>
-    <div class="thankyou" id="thankyou">thankyou</div>
-    <div id="placeholder" class="placeholder">tampilkan fotomu disini</div>
+  <!-- Idle View -->
+  <div id="idleView" class="view active">
+    <div class="placeholder">tampilkan fotomu</div>
+  </div>
+
+  <!-- Gift View -->
+  <div id="giftView" class="view">
+    <div class="gift-view-container">
+      <div class="thankyou" id="thankyou">ThankYou</div>
+      <div id="nickname" class="nickname"></div>
+      <img id="avatar" class="avatar" src="" alt="avatar" />
+    </div>
+  </div>
+
+  <!-- Klasemen View -->
+  <div id="klasemenView" class="view">
+    <div class="klasemen-view-container">
+      <h2>Klasemen</h2>
+      <div id="klasemenData">(akan diisi nanti)</div>
+    </div>
   </div>
 
   <script>
     const avatar = document.getElementById("avatar");
     const nickname = document.getElementById("nickname");
     const thankyou = document.getElementById("thankyou");
-    const placeholder = document.getElementById("placeholder");
+    const idleView = document.getElementById("idleView");
+    const giftView = document.getElementById("giftView");
+    const klasemenView = document.getElementById("klasemenView");
+
+    function showView(view) {
+      idleView.classList.remove('active');
+      giftView.classList.remove('active');
+      klasemenView.classList.remove('active');
+      view.classList.add('active');
+    }
 
     const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
     const ws = new WebSocket(`${protocol}://${location.host}`);
@@ -28,18 +83,20 @@
       if (data.type === 'gift') {
         avatar.src = data.user.avatar;
         nickname.textContent = data.user.name;
-
         avatar.style.display = 'block';
         nickname.style.display = 'block';
         thankyou.style.display = 'block';
-        placeholder.style.display = 'none';
-
+        showView(giftView);
         setTimeout(() => {
-          avatar.style.display = 'none';
-          nickname.style.display = 'none';
-          thankyou.style.display = 'none';
-          placeholder.style.display = 'block';
+          showView(idleView);
         }, 5000);
+      }
+
+      if (data.type === 'showKlasemen') {
+        showView(klasemenView);
+        setTimeout(() => {
+          showView(idleView);
+        }, 10000);
       }
     };
   </script>

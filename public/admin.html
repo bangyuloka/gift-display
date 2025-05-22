@@ -40,6 +40,7 @@
       border: none;
       border-radius: 0.5rem;
       cursor: pointer;
+      margin-top: 0.5rem;
     }
     button:hover {
       background: #0056b3;
@@ -56,10 +57,18 @@
     <h2>Masukkan Username TikTok</h2>
     <input type="text" id="username" placeholder="contoh: sobirinteknik" required>
     <button onclick="setUsername()">Koneksi</button>
+    <button onclick="tampilkanKlasemen()">Tampilkan Klasemen</button>
     <div class="status" id="status"></div>
   </div>
 
   <script>
+    let ws;
+
+    function connectWS() {
+      const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
+      ws = new WebSocket(`${protocol}://${location.host}`);
+    }
+
     function setUsername() {
       const username = document.getElementById('username').value;
       fetch('/set-username', {
@@ -77,6 +86,19 @@
         document.getElementById('status').textContent = 'Gagal menghubungkan.';
       });
     }
+
+    function tampilkanKlasemen() {
+      if (!ws || ws.readyState !== WebSocket.OPEN) {
+        connectWS();
+        ws.onopen = () => {
+          ws.send(JSON.stringify({ type: 'showKlasemen' }));
+        };
+      } else {
+        ws.send(JSON.stringify({ type: 'showKlasemen' }));
+      }
+    }
+
+    connectWS();
   </script>
 </body>
 </html>

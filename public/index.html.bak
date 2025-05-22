@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,58 +6,57 @@
   <title>Gift Display</title>
   <link rel="stylesheet" href="style.css" />
   <style>
-  body, html {
-  margin: 0;
-  padding: 0;
-  width: 100vw;
-  height: 100vh;
-  font-family: Arial, sans-serif;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent; /* Ubah dari gradient ke transparan */
-}
-
-.gift-view {
-  text-align: center;
-  background: white; /* Tambahkan background putih */
-  padding: 2rem;
-  border-radius: 1rem;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-.avatar {
-  width: 30vw;
-  height: 30vw;
-  object-fit: cover;
-  border-radius: 50%;
-  border: 5px solid #ccc;
-}
-
-.nickname {
-  font-size: 2rem;
-  font-weight: bold;
-  margin-top: 1rem;
-}
-
-.thankyou {
-  font-size: 1.5rem;
-  margin-top: 0.5rem;
-  color: #555;
-}
-
-</style>
+    .view { display: none; }
+    .active { display: block; }
+    .gift-view-container, .klasemen-view-container {
+      text-align: center;
+      background: white;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    .avatar, .nickname, .thankyou {
+      display: block;
+    }
+  </style>
 </head>
 <body>
-  <div class="gift-view">
-    <img id="avatar" class="avatar" src="" alt="avatar" />
-    <div id="nickname" class="nickname"></div>
-    <div class="thankyou">thankyou</div>
+  <!-- Idle View -->
+  <div id="idleView" class="view active">
+    <div class="placeholder">tampilkan fotomu</div>
+  </div>
+
+  <!-- Gift View -->
+  <div id="giftView" class="view">
+    <div class="gift-view-container">
+      <img id="avatar" class="avatar" src="" alt="avatar" />
+      <div id="nickname" class="nickname"></div>
+      <div class="thankyou" id="thankyou">thankyou</div>
+    </div>
+  </div>
+
+  <!-- Klasemen View -->
+  <div id="klasemenView" class="view">
+    <div class="klasemen-view-container">
+      <h2>Klasemen</h2>
+      <div id="klasemenData">(akan diisi nanti)</div>
+    </div>
   </div>
 
   <script>
     const avatar = document.getElementById("avatar");
     const nickname = document.getElementById("nickname");
+    const thankyou = document.getElementById("thankyou");
+    const idleView = document.getElementById("idleView");
+    const giftView = document.getElementById("giftView");
+    const klasemenView = document.getElementById("klasemenView");
+
+    function showView(view) {
+      idleView.classList.remove('active');
+      giftView.classList.remove('active');
+      klasemenView.classList.remove('active');
+      view.classList.add('active');
+    }
 
     const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
     const ws = new WebSocket(`${protocol}://${location.host}`);
@@ -68,6 +66,20 @@
       if (data.type === 'gift') {
         avatar.src = data.user.avatar;
         nickname.textContent = data.user.name;
+        avatar.style.display = 'block';
+        nickname.style.display = 'block';
+        thankyou.style.display = 'block';
+        showView(giftView);
+        setTimeout(() => {
+          showView(idleView);
+        }, 5000);
+      }
+
+      if (data.type === 'showKlasemen') {
+        showView(klasemenView);
+        setTimeout(() => {
+          showView(idleView);
+        }, 10000);
       }
     };
   </script>

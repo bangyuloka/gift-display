@@ -17,10 +17,30 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/admin.html'));
+});
+
 let currentUsername = process.env.TIKTOK_USERNAME || null;
 
 wss.on('connection', (ws) => {
   console.log('WebSocket client connected');
+
+  ws.on('message', (message) => {
+    try {
+      const data = JSON.parse(message);
+      if (data.type === 'showKlasemen') {
+        const payload = JSON.stringify({ type: 'showKlasemen' });
+        wss.clients.forEach((client) => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send(payload);
+          }
+        });
+      }
+    } catch (err) {
+      console.error('Invalid WebSocket message', err);
+    }
+  });
 });
 
 function broadcast(data) {
@@ -33,7 +53,7 @@ function broadcast(data) {
 }
 
 TikTokConnector.onGift((user) => {
-  console.log('🎁 Gift from:', user);
+  console.log('\ud83c\udff1 Gift from:', user);
   broadcast({ type: 'gift', user });
 });
 
@@ -41,10 +61,10 @@ async function connectTikTok(username) {
   try {
     if (TikTokConnector.disconnect) await TikTokConnector.disconnect();
     await TikTokConnector.connect(username);
-    console.log('✅ Connected to TikTok Live:', username);
+    console.log('\u2705 Connected to TikTok Live:', username);
     return true;
   } catch (err) {
-    console.error('❌ Failed to connect:', err.message);
+    console.error('\u274c Failed to connect:', err.message);
     return false;
   }
 }
@@ -65,5 +85,5 @@ app.post('/set-username', async (req, res) => {
 });
 
 server.listen(3000, () => {
-  console.log('✅ Server running at http://localhost:3000');
+  console.log('\u2705 Server running at http://localhost:3000');
 });
