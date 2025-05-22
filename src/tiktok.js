@@ -8,7 +8,7 @@ function onGift(callback) {
 }
 
 async function connect(username) {
-  if (tiktok) await disconnect(); // pastikan bersih
+  if (tiktok) await disconnect();
   tiktok = new WebcastPushConnection(username);
 
   tiktok.on('gift', (data) => {
@@ -16,7 +16,8 @@ async function connect(username) {
     giftCallback({
       name: data.nickname,
       avatar: data.profilePictureUrl,
-      uniqueId: data.uniqueId || ''
+      uniqueId: data.uniqueId || '',
+      coin: data.diamondCount || 1
     });
   });
 
@@ -32,4 +33,3 @@ async function disconnect() {
 }
 
 module.exports = { onGift, connect, disconnect };
-

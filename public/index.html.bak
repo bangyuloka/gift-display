@@ -15,8 +15,25 @@
       border-radius: 1rem;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
-    .avatar, .nickname, .thankyou {
+    .thankyou {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
       display: block;
+    }
+    .nickname {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      display: block;
+    }
+    .avatar {
+      width: 200px;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 5px solid #ccc;
+      display: block;
+      margin: 0 auto;
     }
   </style>
 </head>
@@ -29,9 +46,9 @@
   <!-- Gift View -->
   <div id="giftView" class="view">
     <div class="gift-view-container">
-      <img id="avatar" class="avatar" src="" alt="avatar" />
+      <div class="thankyou" id="thankyou">ThankYou</div>
       <div id="nickname" class="nickname"></div>
-      <div class="thankyou" id="thankyou">thankyou</div>
+      <img id="avatar" class="avatar" src="" alt="avatar" />
     </div>
   </div>
 
