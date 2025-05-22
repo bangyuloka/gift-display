@@ -61,12 +61,34 @@
     <div class="status" id="status"></div>
   </div>
 
+  <audio id="audio1" src="audio/musik1.mp3"></audio>
+  <audio id="audio2" src="audio/musik2.mp3"></audio>
+  <audio id="audio3" src="audio/musik3.mp3"></audio>
+  <audio id="audio4" src="audio/musik4.mp3"></audio>
+
   <script>
     let ws;
+
+    const audio1 = document.getElementById("audio1");
+    const audio2 = document.getElementById("audio2");
+    const audio3 = document.getElementById("audio3");
+    const audio4 = document.getElementById("audio4");
 
     function connectWS() {
       const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
       ws = new WebSocket(`${protocol}://${location.host}`);
+
+      ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.type === 'gift') {
+          const coin = data.user.coin || 1;
+          [audio1, audio2, audio3, audio4].forEach(a => { a.pause(); a.currentTime = 0; });
+          if (coin <= 4) audio1.play();
+          else if (coin <= 9) audio2.play();
+          else if (coin <= 29) audio3.play();
+          else audio4.play();
+        }
+      };
     }
 
     function setUsername() {
