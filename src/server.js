@@ -33,7 +33,7 @@ function broadcast(data) {
 }
 
 TikTokConnector.onGift((user) => {
-  console.log('🎁 Gift from:', user);
+  console.log('🏱 Gift from:', user);
   broadcast({ type: 'gift', user });
 });
 
@@ -64,6 +64,6 @@ app.post('/set-username', async (req, res) => {
   }
 });
 
-server.listen(3000, () => {
-  console.log('✅ Server running at http://localhost:3000');
+server.listen(process.env.PORT || 3000, () => {
+  console.log(`✅ Server running at http://localhost:${process.env.PORT || 3000}`);
 });
