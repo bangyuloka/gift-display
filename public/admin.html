@@ -58,6 +58,7 @@
     <input type="text" id="username" placeholder="contoh: sobirinteknik" required>
     <button onclick="setUsername()">Koneksi</button>
     <button onclick="tampilkanKlasemen()">Tampilkan Klasemen</button>
+    <button onclick="aktifkanAudio()">Aktifkan Audio</button>
     <div class="status" id="status"></div>
   </div>
 
@@ -68,11 +69,15 @@
 
   <script>
     let ws;
-
     const audio1 = document.getElementById("audio1");
     const audio2 = document.getElementById("audio2");
     const audio3 = document.getElementById("audio3");
     const audio4 = document.getElementById("audio4");
+
+    function aktifkanAudio() {
+      [audio1, audio2, audio3, audio4].forEach(a => a.play().then(() => a.pause()));
+      alert("Audio diaktifkan!");
+    }
 
     function connectWS() {
       const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
