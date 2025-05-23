@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Overlay Skor</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      background: transparent;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .scoreboard {
+      display: flex;
+      align-items: flex-start;
+      gap: 5rem;
+      padding: 1rem;
+    }
+    .team {
+      text-align: center;
+    }
+    .team-name {
+      font-size: 2rem;
+      font-weight: bold;
+      color: white;
+      text-shadow: 2px 2px 5px rgba(0,0,0,0.8), -2px -2px 5px rgba(0,0,0,0.8);
+      margin-bottom: 1rem;
+    }
+    .score {
+      background: yellow;
+      font-size: 4rem;
+      font-weight: bold;
+      color: black;
+      padding: 1rem 0;
+      border-radius: 1rem;
+      box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+      width: 120px;
+      text-align: center;
+    }
+    .vs-text {
+      font-size: 5rem;
+      font-weight: bold;
+      color: black;
+      align-self: center;
+      min-width: 80px;
+      text-align: center;
+    }
+    .match-info {
+      position: absolute;
+      bottom: 20px;
+      font-size: 1.5rem;
+      color: white;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+    }
+  </style>
+</head>
+<body>
+  <div class="scoreboard">
+    <div class="team">
+      <div class="team-name" id="teamAName">Tim A</div>
+      <div class="score" id="scoreA">0</div>
+    </div>
+    <div class="vs-text">VS</div>
+    <div class="team">
+      <div class="team-name" id="teamBName">Tim B</div>
+      <div class="score" id="scoreB">0</div>
+    </div>
+  </div>
+  <div class="match-info" id="matchInfo">Pertandingan: -</div>
+
+  <script>
+    const socket = io();
+    socket.on('matchAktif', (match) => {
+      document.getElementById('teamAName').textContent = match.teamA;
+      document.getElementById('teamBName').textContent = match.teamB;
+      document.getElementById('scoreA').textContent = match.scoreA || 0;
+      document.getElementById('scoreB').textContent = match.scoreB || 0;
+      document.getElementById('matchInfo').textContent = `Pertandingan: ${match.teamA} vs ${match.teamB}`;
+    });
+  </script>
+</body>
+</html>

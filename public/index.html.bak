@@ -1,34 +1,43 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gift Display</title>
-  <link rel="stylesheet" href="style.css" />
   <style>
-    .view { display: none; }
-    .active { display: block; }
-    .gift-view-container, .klasemen-view-container {
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
+      background: transparent;
+    }
+    .view {
+      display: none;
+    }
+    .active {
+      display: block;
+    }
+    .gift-view-container {
       text-align: center;
-      background: white;
+      background: transparent;
       padding: 2rem;
       border-radius: 1rem;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      max-width: 300px;
+      margin: 4rem auto;
     }
     .thankyou {
       font-size: 2rem;
       font-weight: bold;
       margin-bottom: 1rem;
-      display: block;
     }
     .nickname {
-      font-size: 1.5rem;
-      margin-bottom: 1rem;
-      display: block;
+      font-size: 1.2rem;
+      margin: 1rem 0;
     }
     .avatar {
-      width: 200px;
-      height: 200px;
+      width: 180px;
+      height: 180px;
       object-fit: cover;
       border-radius: 50%;
       border: 5px solid #ccc;
@@ -40,38 +49,29 @@
 <body>
   <!-- Idle View -->
   <div id="idleView" class="view active">
-    <div class="placeholder">tampilkan fotomu</div>
+    <div class="gift-view-container">
+      <div class="thankyou">Welcome</div>
+    </div>
   </div>
 
   <!-- Gift View -->
   <div id="giftView" class="view">
     <div class="gift-view-container">
-      <div class="thankyou" id="thankyou">ThankYou</div>
-      <div id="nickname" class="nickname"></div>
+      <div class="thankyou">🎉 Thankyou 🎉</div>
+	  <div id="nickname" class="nickname"></div>
       <img id="avatar" class="avatar" src="" alt="avatar" />
-    </div>
-  </div>
-
-  <!-- Klasemen View -->
-  <div id="klasemenView" class="view">
-    <div class="klasemen-view-container">
-      <h2>Klasemen</h2>
-      <div id="klasemenData">(akan diisi nanti)</div>
+      
     </div>
   </div>
 
   <script>
     const avatar = document.getElementById("avatar");
     const nickname = document.getElementById("nickname");
-    const thankyou = document.getElementById("thankyou");
     const idleView = document.getElementById("idleView");
     const giftView = document.getElementById("giftView");
-    const klasemenView = document.getElementById("klasemenView");
 
     function showView(view) {
-      idleView.classList.remove('active');
-      giftView.classList.remove('active');
-      klasemenView.classList.remove('active');
+      [idleView, giftView].forEach(v => v.classList.remove('active'));
       view.classList.add('active');
     }
 
@@ -80,23 +80,13 @@
 
     ws.onmessage = (msg) => {
       const data = JSON.parse(msg.data);
-      if (data.type === 'gift') {
-        avatar.src = data.user.avatar;
-        nickname.textContent = data.user.name;
-        avatar.style.display = 'block';
-        nickname.style.display = 'block';
-        thankyou.style.display = 'block';
-        showView(giftView);
-        setTimeout(() => {
-          showView(idleView);
-        }, 5000);
-      }
 
-      if (data.type === 'showKlasemen') {
-        showView(klasemenView);
-        setTimeout(() => {
-          showView(idleView);
-        }, 10000);
+      if (data.type === 'gift' && data.data) {
+        const g = data.data;
+        avatar.src = g.profilePictureUrl || '';
+        nickname.textContent = `${g.nickname}`;
+        showView(giftView);
+        setTimeout(() => showView(idleView), 6000);
       }
     };
   </script>

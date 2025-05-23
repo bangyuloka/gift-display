@@ -1,97 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Set TikTok Username</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin TikTok Gift</title>
   <style>
     body {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
       font-family: sans-serif;
       background: linear-gradient(to bottom, #e0eafc, #cfdef3);
+      margin: 0;
+      padding: 2rem;
     }
-    .form-container {
+    .container {
+      max-width: 600px;
+      margin: auto;
       background: white;
       padding: 2rem;
       border-radius: 1rem;
       box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-      width: 90%;
-      max-width: 400px;
-      text-align: center;
     }
-    input[type="text"] {
+    input, button {
       width: 100%;
-      padding: 0.8rem;
       margin-bottom: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 0.5rem;
-      font-size: 1rem;
-    }
-    button {
-      width: 100%;
       padding: 1rem;
       font-size: 1rem;
+      border-radius: 0.5rem;
+      border: 1px solid #ccc;
+    }
+    button {
       background: #007bff;
       color: white;
       border: none;
-      border-radius: 0.5rem;
       cursor: pointer;
-      margin-top: 0.5rem;
     }
     button:hover {
       background: #0056b3;
     }
-    .status {
-      margin-top: 1rem;
+    .status, .gift-info {
       font-weight: bold;
-      color: green;
+      margin-top: 1rem;
+    }
+    .gift-info {
+      background: #f9f9f9;
+      padding: 1rem;
+      border-radius: 0.5rem;
+    }
+    .gift-info div {
+      margin-bottom: 0.5rem;
     }
   </style>
 </head>
 <body>
-  <div class="form-container">
+  <div class="container">
     <h2>Masukkan Username TikTok</h2>
     <input type="text" id="username" placeholder="contoh: sobirinteknik" required>
     <button onclick="setUsername()">Koneksi</button>
     <button onclick="tampilkanKlasemen()">Tampilkan Klasemen</button>
-    <button onclick="aktifkanAudio()">Aktifkan Audio</button>
-    <div class="status" id="status"></div>
-  </div>
 
-  <audio id="audio1" src="audio/musik1.mp3"></audio>
-  <audio id="audio2" src="audio/musik2.mp3"></audio>
-  <audio id="audio3" src="audio/musik3.mp3"></audio>
-  <audio id="audio4" src="audio/musik4.mp3"></audio>
+    <div class="status" id="status"></div>
+    <div class="gift-info" id="giftInfo" style="display:none;"></div>
+  </div>
 
   <script>
     let ws;
-    const audio1 = document.getElementById("audio1");
-    const audio2 = document.getElementById("audio2");
-    const audio3 = document.getElementById("audio3");
-    const audio4 = document.getElementById("audio4");
-
-    function aktifkanAudio() {
-      [audio1, audio2, audio3, audio4].forEach(a => a.play().then(() => a.pause()));
-      alert("Audio diaktifkan!");
-    }
+    const giftInfo = document.getElementById("giftInfo");
 
     function connectWS() {
       const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
       ws = new WebSocket(`${protocol}://${location.host}`);
 
       ws.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        if (data.type === 'gift') {
-          const coin = data.user.coin || 1;
-          [audio1, audio2, audio3, audio4].forEach(a => { a.pause(); a.currentTime = 0; });
-          if (coin <= 4) audio1.play();
-          else if (coin <= 9) audio2.play();
-          else if (coin <= 29) audio3.play();
-          else audio4.play();
+        const msg = JSON.parse(event.data);
+        if (msg.type === 'gift' && msg.data) {
+          const g = msg.data;
+
+          giftInfo.innerHTML = `
+            <div>👤 <b>${g.nickname}</b> (${g.uniqueId})</div>
+            <div>🎁 Gift: <b>${g.giftName}</b> (ID: ${g.gift_id})</div>
+            <div>💎 Diamond: <b>${g.diamondCount}</b></div>
+            <div>🔁 Repeat: ${g.repeat_count} ${g.repeat_end ? '(END)' : ''}</div>
+            <div>🕒 Time: ${new Date(g.timestamp).toLocaleTimeString()}</div>
+          `;
+          giftInfo.style.display = "block";
         }
       };
     }
@@ -100,16 +90,14 @@
       const username = document.getElementById('username').value;
       fetch('/set-username', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username })
       })
       .then(res => res.json())
       .then(data => {
         document.getElementById('status').textContent = data.message;
       })
-      .catch(err => {
+      .catch(() => {
         document.getElementById('status').textContent = 'Gagal menghubungkan.';
       });
     }
@@ -117,9 +105,7 @@
     function tampilkanKlasemen() {
       if (!ws || ws.readyState !== WebSocket.OPEN) {
         connectWS();
-        ws.onopen = () => {
-          ws.send(JSON.stringify({ type: 'showKlasemen' }));
-        };
+        ws.onopen = () => ws.send(JSON.stringify({ type: 'showKlasemen' }));
       } else {
         ws.send(JSON.stringify({ type: 'showKlasemen' }));
       }

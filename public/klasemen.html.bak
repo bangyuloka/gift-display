@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Klasemen Liga</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #eef2f3;
+      margin: 0;
+      padding: 2rem;
+      text-align: center;
+    }
+    h1 {
+      margin-bottom: 1.5rem;
+    }
+    table {
+      width: 100%;
+      max-width: 500px;
+      margin: auto;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 1rem;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    th, td {
+      padding: 1rem;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background: #007bff;
+      color: white;
+      text-transform: uppercase;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>📊 Klasemen Liga</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Tim</th>
+        <th>Total Skor</th>
+      </tr>
+    </thead>
+    <tbody id="klasemenBody">
+      <tr><td colspan="2">Memuat...</td></tr>
+    </tbody>
+  </table>
+
+  <script>
+    const klasemenBody = document.getElementById('klasemenBody');
+
+    function updateKlasemen() {
+      fetch('/liga/klasemen')
+        .then(res => res.json())
+        .then(data => {
+          if (!data.klasemen || data.klasemen.length === 0) {
+            klasemenBody.innerHTML = '<tr><td colspan="2">Belum ada data klasemen.</td></tr>';
+            return;
+          }
+          klasemenBody.innerHTML = data.klasemen.map(row => `
+            <tr>
+              <td>${row.tim}</td>
+              <td>${row.totalSkor}</td>
+            </tr>
+          `).join('');
+        });
+    }
+
+    updateKlasemen();
+
+    const socket = io();
+    socket.on('updateKlasemen', () => {
+      updateKlasemen();
+    });
+  </script>
+</body>
+</html>

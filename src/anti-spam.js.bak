@@ -1,0 +1,28 @@
+// anti-spam.js
+
+const giftState = new Map();
+
+function filterGift(gift) {
+  const { uniqueId, diamondCount } = gift;
+
+  if (!uniqueId || typeof diamondCount !== 'number') return false;
+
+  const state = giftState.get(uniqueId) || { count: 0, lastCoin: 0 };
+  state.count += 1;
+  state.lastCoin = diamondCount;
+  giftState.set(uniqueId, state);
+
+  // Rule 1: gift < 5 coin → hanya pemberian pertama diterima
+  if (diamondCount < 5) {
+    return state.count === 1;
+  }
+
+  // Rule 2: gift >= 5 coin → pemberian 1 & 2 diterima, selanjutnya tolak
+  if (diamondCount >= 5) {
+    return state.count <= 2;
+  }
+
+  return false;
+}
+
+module.exports = { filterGift };
