@@ -32,12 +32,7 @@
   </style>
 </head>
 <body>
-  <div class="section">
-    <h2>🎵 Audio Gift</h2>
-    <button onclick="aktifkanAudio()">Aktifkan Audio</button>
-    <div id="audioStatus"></div>
-  <button onclick="selesaikanMatch()">Selesaikan Match Ini</button>
-  </div>
+  
 
   <div class="section">
     <h2>🏆 Skor Match Aktif</h2>
@@ -52,22 +47,29 @@
       <button onclick="change('B', -1)">-1</button>
     </div>
     <button onclick="resetScores()">Reset Skor</button>
-  <button onclick="selesaikanMatch()">Selesaikan Match Ini</button>
+    <button onclick="selesaikanMatch()">Selesaikan Match Ini</button>
   </div>
 
+  
+
+  <div class="section">
+    <h2>📅 Jadwal Pertandingan</h2>
+    <button onclick="buatJadwal()">Buat Jadwal Otomatis</button>
+    <ul id="daftarJadwal"></ul>
+  </div>
+  
   <div class="section">
     <h2>⚽ Tambah Tim Liga</h2>
     <input type="text" id="teamInput" placeholder="Nama Tim Baru" />
     <button onclick="tambahTim()">Tambah</button>
     <button onclick="resetTim()">Reset Tim & Jadwal</button>
     <ul id="daftarTim"></ul>
-  <button onclick="selesaikanMatch()">Selesaikan Match Ini</button>
   </div>
-
+  
   <div class="section">
-    <h2>📅 Jadwal Pertandingan</h2>
-    <button onclick="buatJadwal()">Buat Jadwal Otomatis</button>
-    <ul id="daftarJadwal"></ul>
+    <h2>🎵 Audio Gift</h2>
+    <button onclick="aktifkanAudio()">Aktifkan Audio</button>
+    <div id="audioStatus"></div>
   </div>
 
   <audio id="audio1" src="audio/musik1.mp3"></audio>
@@ -112,12 +114,11 @@
     };
 
     socket.on('matchAktif', (match) => {
-      scoreA = match.scoreA || 0;
-      scoreB = match.scoreB || 0;
-      timA = match.teamA;
-      timB = match.teamB;
-      document.getElementById("scoreA").textContent = scoreA;
-      document.getElementById("scoreB").textContent = scoreB;
+      scoreA = match?.scoreA || 0;
+      scoreB = match?.scoreB || 0;
+      timA = match?.teamA || "TIM A";
+      timB = match?.teamB || "TIM B";
+      updateView();
     });
 
     function change(team, delta) {
@@ -145,6 +146,15 @@
     function updateView() {
       document.getElementById("scoreA").textContent = scoreA;
       document.getElementById("scoreB").textContent = scoreB;
+    }
+
+    function selesaikanMatch() {
+      if (!confirm("Yakin menyelesaikan match ini?")) return;
+      fetch('/liga/selesai', { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+          alert(data.message);
+        });
     }
 
     function tambahTim() {

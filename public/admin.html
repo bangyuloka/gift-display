@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -36,17 +36,9 @@
     button:hover {
       background: #0056b3;
     }
-    .status, .gift-info {
+    .status {
       font-weight: bold;
       margin-top: 1rem;
-    }
-    .gift-info {
-      background: #f9f9f9;
-      padding: 1rem;
-      border-radius: 0.5rem;
-    }
-    .gift-info div {
-      margin-bottom: 0.5rem;
     }
   </style>
 </head>
@@ -55,37 +47,10 @@
     <h2>Masukkan Username TikTok</h2>
     <input type="text" id="username" placeholder="contoh: sobirinteknik" required>
     <button onclick="setUsername()">Koneksi</button>
-    <button onclick="tampilkanKlasemen()">Tampilkan Klasemen</button>
-
     <div class="status" id="status"></div>
-    <div class="gift-info" id="giftInfo" style="display:none;"></div>
   </div>
 
   <script>
-    let ws;
-    const giftInfo = document.getElementById("giftInfo");
-
-    function connectWS() {
-      const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-      ws = new WebSocket(`${protocol}://${location.host}`);
-
-      ws.onmessage = (event) => {
-        const msg = JSON.parse(event.data);
-        if (msg.type === 'gift' && msg.data) {
-          const g = msg.data;
-
-          giftInfo.innerHTML = `
-            <div>👤 <b>${g.nickname}</b> (${g.uniqueId})</div>
-            <div>🎁 Gift: <b>${g.giftName}</b> (ID: ${g.gift_id})</div>
-            <div>💎 Diamond: <b>${g.diamondCount}</b></div>
-            <div>🔁 Repeat: ${g.repeat_count} ${g.repeat_end ? '(END)' : ''}</div>
-            <div>🕒 Time: ${new Date(g.timestamp).toLocaleTimeString()}</div>
-          `;
-          giftInfo.style.display = "block";
-        }
-      };
-    }
-
     function setUsername() {
       const username = document.getElementById('username').value;
       fetch('/set-username', {
@@ -95,23 +60,12 @@
       })
       .then(res => res.json())
       .then(data => {
-        document.getElementById('status').textContent = data.message;
+        document.getElementById('status').textContent = "Terkoneksi dengan " + username;
       })
       .catch(() => {
-        document.getElementById('status').textContent = 'Gagal menghubungkan.';
+        document.getElementById('status').textContent = '❌ Gagal menghubungkan.';
       });
     }
-
-    function tampilkanKlasemen() {
-      if (!ws || ws.readyState !== WebSocket.OPEN) {
-        connectWS();
-        ws.onopen = () => ws.send(JSON.stringify({ type: 'showKlasemen' }));
-      } else {
-        ws.send(JSON.stringify({ type: 'showKlasemen' }));
-      }
-    }
-
-    connectWS();
   </script>
 </body>
 </html>

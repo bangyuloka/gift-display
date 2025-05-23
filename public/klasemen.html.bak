@@ -3,35 +3,39 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Klasemen Liga</title>
+  <title>Overlay Klasemen</title>
   <script src="/socket.io/socket.io.js"></script>
   <style>
-    body {
-      font-family: sans-serif;
-      background: #eef2f3;
+    html, body {
       margin: 0;
-      padding: 2rem;
-      text-align: center;
+      padding: 0;
+      height: 100vh;
+      background: transparent;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
-    h1 {
-      margin-bottom: 1.5rem;
+    .klasemen-board {
+      background: white;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
+      max-height: 80vh;
+      overflow-y: auto;
     }
     table {
       width: 100%;
-      max-width: 500px;
-      margin: auto;
       border-collapse: collapse;
-      background: white;
-      border-radius: 1rem;
-      overflow: hidden;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
     th, td {
-      padding: 1rem;
-      border-bottom: 1px solid #ddd;
+      padding: 0.75rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid #ccc;
     }
     th {
-      background: #007bff;
+      background-color: #007bff;
       color: white;
       text-transform: uppercase;
     }
@@ -41,22 +45,34 @@
   </style>
 </head>
 <body>
-  <h1>📊 Klasemen Liga</h1>
-  <table>
-    <thead>
-      <tr>
-        <th>Tim</th>
-        <th>Total Skor</th>
-      </tr>
-    </thead>
-    <tbody id="klasemenBody">
-      <tr><td colspan="2">Memuat...</td></tr>
-    </tbody>
-  </table>
+  <div class="klasemen-board">
+    <table>
+      <thead>
+        <tr>
+          <th>Tim</th>
+          <th>Skor</th>
+        </tr>
+      </thead>
+      <tbody id="klasemenBody">
+        <tr><td colspan="2">Memuat...</td></tr>
+      </tbody>
+    </table>
+  </div>
 
   <script>
     const klasemenBody = document.getElementById('klasemenBody');
 
+// Ambil klasemen saat load
+    updateKlasemen();
+
+    // Dengarkan update klasemen dari server
+   const socket = io();
+socket.on('updateKlasemen', () => {
+  updateKlasemen();
+});
+
+	
+	
     function updateKlasemen() {
       fetch('/liga/klasemen')
         .then(res => res.json())
@@ -74,12 +90,7 @@
         });
     }
 
-    updateKlasemen();
-
-    const socket = io();
-    socket.on('updateKlasemen', () => {
-      updateKlasemen();
-    });
+    
   </script>
 </body>
 </html>

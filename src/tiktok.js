@@ -18,8 +18,6 @@ async function connect(username) {
   tiktok = new WebcastPushConnection(username);
 
   tiktok.on('gift', data => {
-    console.log("🎁 Gift received:", JSON.stringify(data, null, 2));
-
     if (data.giftType === 1 && !data.repeatEnd) return;
     if (!filterGift(data)) return;
 
@@ -40,7 +38,12 @@ async function connect(username) {
     });
   });
 
-  await tiktok.connect();
+  try {
+    await tiktok.connect();
+    console.log(`✅ Berhasil terkoneksi dengan akun TikTok: ${username}`);
+  } catch (err) {
+    console.error(`❌ Gagal koneksi ke akun TikTok "${username}":`, err.message || err);
+  }
 }
 
 module.exports = { onGift, connect };

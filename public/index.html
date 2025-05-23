@@ -1,94 +1,51 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gift Display</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard TikTok Overlay</title>
   <style>
     body {
-      margin: 0;
-      padding: 0;
       font-family: sans-serif;
-      background: transparent;
-    }
-    .view {
-      display: none;
-    }
-    .active {
-      display: block;
-    }
-    .gift-view-container {
-      text-align: center;
-      background: transparent;
+      background: #f0f8ff;
+      margin: 0;
       padding: 2rem;
-      border-radius: 1rem;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      max-width: 300px;
-      margin: 4rem auto;
+      text-align: center;
     }
-    .thankyou {
-      font-size: 2rem;
-      font-weight: bold;
-      margin-bottom: 1rem;
+    h1 {
+      margin-bottom: 2rem;
     }
-    .nickname {
-      font-size: 2rem;
-      margin: 1rem 0;
-    }
-    .avatar {
-      width: 180px;
-      height: 180px;
-      object-fit: cover;
-      border-radius: 50%;
-      border: 5px solid #ccc;
+    button {
       display: block;
-      margin: 0 auto;
+      width: 250px;
+      margin: 1rem auto;
+      padding: 1rem;
+      font-size: 1.2rem;
+      border: none;
+      border-radius: 0.7rem;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
     }
   </style>
 </head>
 <body>
-  <!-- Idle View -->
-  <div id="idleView" class="view active">
-    <div class="gift-view-container">
-      <div class="thankyou">Welcome</div>
-    </div>
-  </div>
-
-  <!-- Gift View -->
-  <div id="giftView" class="view">
-    <div class="gift-view-container">
-      <div class="thankyou">🎉 Thankyou 🎉</div>
-	  <div id="nickname" class="nickname"></div>
-      <img id="avatar" class="avatar" src="" alt="avatar" />
-      
-    </div>
-  </div>
+  <h1>🎥 TikTok Overlay Dashboard</h1>
+  <button onclick="buka('admin.html')">🔧 Admin</button>
+  <button onclick="buka('audio.html')">🎵 Audio </button>
+   <button onclick="buka('liga.html')">🎵 Liga Setting</button>
+  <button onclick="buka('skor.html')">📊 Skor </button>
+  <button onclick="buka('klasemen.html')">🏆 Klasemen</button>
+  <button onclick="buka('gift-display.html')">🎁 Gift Display</button>
 
   <script>
-    const avatar = document.getElementById("avatar");
-    const nickname = document.getElementById("nickname");
-    const idleView = document.getElementById("idleView");
-    const giftView = document.getElementById("giftView");
-
-    function showView(view) {
-      [idleView, giftView].forEach(v => v.classList.remove('active'));
-      view.classList.add('active');
+    function buka(href) {
+      window.open(href, '_blank');
     }
-
-    const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-    const ws = new WebSocket(`${protocol}://${location.host}`);
-
-    ws.onmessage = (msg) => {
-      const data = JSON.parse(msg.data);
-
-      if (data.type === 'gift' && data.data) {
-        const g = data.data;
-        avatar.src = g.profilePictureUrl || '';
-        nickname.textContent = `${g.nickname}`;
-        showView(giftView);
-        setTimeout(() => showView(idleView), 6000);
-      }
-    };
   </script>
 </body>
 </html>

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pengaturan Liga</title>
+  <style>
+    body { font-family: sans-serif; background: #f0f8ff; margin: 0; padding: 2rem; text-align: center; }
+    h2 { margin-top: 2rem; }
+    input, button {
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      margin: 0.5rem;
+      border-radius: 0.5rem;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover { background: #0056b3; }
+    .section {
+      margin-bottom: 2rem;
+      background: white;
+      padding: 1rem;
+      border-radius: 1rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.3rem 0; }
+  </style>
+</head>
+<body>
+  <div class="section">
+    <h2>🏆 Skor Match Aktif</h2>
+    <div><span id="teamAName">TIM A</span>: <span id="scoreA">0</span></div>
+    <button onclick="change('A', 1)">+1</button>
+    <button onclick="change('A', -1)">-1</button>
+    <div><span id="teamBName">TIM B</span>: <span id="scoreB">0</span></div>
+    <button onclick="change('B', 1)">+1</button>
+    <button onclick="change('B', -1)">-1</button>
+    <br>
+    <button onclick="selesaikanMatch()">Selesaikan Match Ini</button>
+    <button onclick="resetScores()">Reset Skor</button>
+  </div>
+
+  <div class="section">
+    <h2>📅 Jadwal Pertandingan</h2>
+    <button onclick="buatJadwal()">Buat Jadwal Otomatis</button>
+    <ul id="daftarJadwal"></ul>
+  </div>
+
+  <div class="section">
+    <h2>⚽ Tambah Tim Liga</h2>
+    <input id="teamInput" placeholder="Nama Tim Baru" type="text"/>
+    <button onclick="tambahTim()">Tambah</button>
+    <button onclick="resetTim()">Reset Tim &amp; Jadwal</button>
+    <ul id="daftarTim"></ul>
+  </div>
+
+  <script>
+    let scoreA = 0, scoreB = 0;
+    let timA = "TIM A", timB = "TIM B";
+
+    function tambahTim() {
+      const input = document.getElementById("teamInput");
+      const name = input.value.trim();
+      if (!name) return alert("Nama tim tidak boleh kosong");
+
+      fetch('/liga/tim', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.teams) tampilkanDaftarTim(data.teams);
+        else alert(data.message || "Gagal tambah tim");
+        input.value = "";
+      }).catch(err => alert("Gagal menghubungi server"));
+    }
+
+    function resetTim() {
+      if (!confirm("Yakin ingin menghapus semua tim dan jadwal?")) return;
+      fetch('/liga/reset', { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+          alert(data.message);
+          ambilDaftarTim();
+          ambilJadwal();
+        }).catch(err => alert("Gagal reset tim"));
+    }
+
+    function tampilkanDaftarTim(teams) {
+      document.getElementById("daftarTim").innerHTML = teams.map(n => `<li>${n}</li>`).join('');
+    }
+
+    function ambilDaftarTim() {
+      fetch('/liga/tim')
+        .then(res => res.json())
+        .then(data => tampilkanDaftarTim(data.teams))
+        .catch(err => console.error(err));
+    }
+
+    function buatJadwal() {
+      fetch('/liga/jadwal', { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+          if (data.matches) tampilkanJadwal(data.matches);
+          else alert(data.message);
+        });
+    }
+
+    function tampilkanJadwal(matches) {
+      document.getElementById("daftarJadwal").innerHTML = matches.map((m, i) =>
+        `<li>Match ${i + 1}: ${m.teamA} vs ${m.teamB} <button onclick="setMatchAktif(${i})">Aktifkan</button></li>`
+      ).join('');
+    }
+
+    function ambilJadwal() {
+      fetch('/liga/jadwal')
+        .then(res => res.json())
+        .then(data => tampilkanJadwal(data.matches));
+    }
+
+    function setMatchAktif(index) {
+      fetch('/liga/match-aktif', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ index })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.matchAktif) {
+          timA = data.matchAktif.teamA;
+          timB = data.matchAktif.teamB;
+          scoreA = data.matchAktif.scoreA || 0;
+          scoreB = data.matchAktif.scoreB || 0;
+          updateView();
+          alert(`Match aktif: ${timA} vs ${timB}`);
+        }
+      });
+    }
+
+    function change(team, delta) {
+      if (team === 'A') scoreA += delta;
+      if (team === 'B') scoreB += delta;
+      updateScoreServer();
+      updateView();
+    }
+
+    function resetScores() {
+      scoreA = 0;
+      scoreB = 0;
+      updateScoreServer();
+      updateView();
+    }
+
+    function updateScoreServer() {
+      fetch('/liga/update-skor', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ scoreA, scoreB })
+      });
+    }
+
+    function updateView() {
+      document.getElementById("teamAName").textContent = timA;
+      document.getElementById("teamBName").textContent = timB;
+      document.getElementById("scoreA").textContent = scoreA;
+      document.getElementById("scoreB").textContent = scoreB;
+    }
+
+    function selesaikanMatch() {
+      if (!confirm("Yakin menyelesaikan match ini?")) return;
+      fetch('/liga/selesai', { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+          alert(data.message);
+          timA = "TIM A";
+          timB = "TIM B";
+          scoreA = 0;
+          scoreB = 0;
+          updateView();
+          ambilJadwal();
+        });
+    }
+
+    // Inisialisasi
+    ambilDaftarTim();
+    ambilJadwal();
+  </script>
+</body>
+</html>

@@ -50,7 +50,7 @@
       <thead>
         <tr>
           <th>Tim</th>
-          <th>Total Skor</th>
+          <th>Skor</th>
         </tr>
       </thead>
       <tbody id="klasemenBody">
@@ -66,10 +66,11 @@
     updateKlasemen();
 
     // Dengarkan update klasemen dari server
-    const socket = io();
-    socket.on('updateKlasemen', () => {
-      updateKlasemen();
-    });
+   const socket = io();
+		socket.on('updateKlasemen', () => {
+		updateKlasemen();
+		});
+
 	
 	
     function updateKlasemen() {

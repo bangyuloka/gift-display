@@ -1,0 +1,93 @@
+<!-- gift-display.html -->
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gift Display</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
+      background: transparent;
+    }
+    .view {
+      display: none;
+    }
+    .active {
+      display: block;
+    }
+    .gift-view-container {
+      text-align: center;
+      background: none;
+		box-shadow: none;
+      padding: 2rem;     
+      max-width: 300px;
+      margin: 4rem auto;
+    }
+    .thankyou {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+    .nickname {
+      font-size: 2rem;
+      margin: 1rem 0;
+    }
+    .avatar {
+      width: 180px;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 5px solid #ccc;
+      display: block;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+  <!-- Idle View -->
+  <div id="idleView" class="view active">
+    <div class="gift-view-container">
+      <div class="thankyou">Welcome</div>
+    </div>
+  </div>
+
+  <!-- Gift View -->
+  <div id="giftView" class="view">
+    <div class="gift-view-container">
+      <div class="thankyou">🎉 Thankyou 🎉</div>
+      <div id="nickname" class="nickname"></div>
+      <img id="avatar" class="avatar" src="" alt="avatar" />
+    </div>
+  </div>
+
+  <script>
+    const avatar = document.getElementById("avatar");
+    const nickname = document.getElementById("nickname");
+    const idleView = document.getElementById("idleView");
+    const giftView = document.getElementById("giftView");
+
+    function showView(view) {
+      [idleView, giftView].forEach(v => v.classList.remove('active'));
+      view.classList.add('active');
+    }
+
+    const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
+    const ws = new WebSocket(`${protocol}://${location.host}`);
+
+    ws.onmessage = (msg) => {
+      const data = JSON.parse(msg.data);
+
+      if (data.type === 'gift' && data.data) {
+        const g = data.data;
+        avatar.src = g.profilePictureUrl || '';
+        nickname.textContent = `${g.nickname}`;
+        showView(giftView);
+        setTimeout(() => showView(idleView), 6000);
+      }
+    };
+  </script>
+</body>
+</html>
