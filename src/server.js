@@ -45,15 +45,13 @@ app.post('/set-username', (req, res) => {
   res.json({ message: `Terkoneksi dengan ${username}` });
 });
 
-// Handle pesan masuk dari klien melalui WebSocket
-wss.on('connection', ws => {
-  ws.on('message', msg => {
-    try {
-      const data = JSON.parse(msg);
-      if (data.type === 'showKlasemen' || data.type === 'hideKlasemen') {
-        broadcastWS({ type: data.type });
-      }
-    } catch (_) {}
+// menampilkan menyembunyikan klasemen
+io.on('connection', (socket) => {
+  socket.on('showKlasemen', () => {
+    io.emit('showKlasemen');
+  });
+  socket.on('hideKlasemen', () => {
+    io.emit('hideKlasemen');
   });
 });
 

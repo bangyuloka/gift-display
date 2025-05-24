@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Pengaturan Liga</title>
+  <title>Kontrol Liga</title>
+  <script src="/socket.io/socket.io.js"></script>
   <style>
-    body { font-family: sans-serif; background: #f0f8ff; margin: 0; padding: 2rem; text-align: center; }
+    body { font-family: Arial, sans-serif; background: #f0f8ff; margin: 0; padding: 2rem; text-align: center; }
     h2 { margin-top: 2rem; }
     input, button {
       padding: 0.5rem 1rem;
@@ -29,6 +30,7 @@
     }
     ul { list-style: none; padding: 0; }
     li { margin: 0.3rem 0; }
+    #statusKlasemen { margin-top: 1rem; font-weight: bold; }
   </style>
 </head>
 <body>
@@ -44,7 +46,14 @@
     <button onclick="selesaikanMatch()">Selesaikan Match Ini</button>
     <button onclick="resetScores()">Reset Skor</button>
   </div>
-
+	
+	 <div class="section">
+    <h2>🎛️ Kontrol Klasemen</h2>
+    <button onclick="toggleKlasemen(true)">Tampilkan Klasemen</button>
+    <button onclick="toggleKlasemen(false)">Sembunyikan Klasemen</button>
+    <p id="statusKlasemen">Klasemen saat ini: Tampil</p>
+  </div>
+  
   <div class="section">
     <h2>📅 Jadwal Pertandingan</h2>
     <button onclick="buatJadwal()">Buat Jadwal Otomatis</button>
@@ -55,26 +64,65 @@
     <h2>⚽ Tambah Tim Liga</h2>
     <input id="teamInput" placeholder="Nama Tim Baru" type="text"/>
     <button onclick="tambahTim()">Tambah</button>
-    <button onclick="resetTim()">Reset Tim &amp; Jadwal</button>
+    <button onclick="resetTim()">Reset Tim & Jadwal</button>
     <ul id="daftarTim"></ul>
   </div>
 
-  <div class="section">
-    <h2>🎛️ Kontrol Klasemen</h2>
-    <button onclick="toggleKlasemen(true)">Tampilkan Klasemen</button>
-    <button onclick="toggleKlasemen(false)">Sembunyikan Klasemen</button>
-	<p id="statusKlasemen">Klasemen saat ini: Tampil</p>
-  </div>
+ 
 
   <script>
-    const ws = new WebSocket(`ws://${location.host}`);
-
-    function toggleKlasemen(show) {
-      ws.send(JSON.stringify({ type: show ? 'showKlasemen' : 'hideKlasemen' }));
-    }
-
+    const socket = io();
     let scoreA = 0, scoreB = 0;
     let timA = "TIM A", timB = "TIM B";
+
+    function toggleKlasemen(show) {
+      socket.emit(show ? 'showKlasemen' : 'hideKlasemen');
+      document.getElementById('statusKlasemen').textContent = 'Klasemen saat ini: ' + (show ? 'Tampil' : 'Tersembunyi');
+    }
+
+    function change(team, delta) {
+      if (team === 'A') scoreA += delta;
+      if (team === 'B') scoreB += delta;
+      updateScoreServer();
+      updateView();
+    }
+
+    function resetScores() {
+      scoreA = 0;
+      scoreB = 0;
+      updateScoreServer();
+      updateView();
+    }
+
+    function updateScoreServer() {
+      fetch('/liga/update-skor', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ scoreA, scoreB })
+      });
+    }
+
+    function updateView() {
+      document.getElementById("teamAName").textContent = timA;
+      document.getElementById("teamBName").textContent = timB;
+      document.getElementById("scoreA").textContent = scoreA;
+      document.getElementById("scoreB").textContent = scoreB;
+    }
+
+    function selesaikanMatch() {
+      if (!confirm("Yakin menyelesaikan match ini?")) return;
+      fetch('/liga/selesai', { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+          alert(data.message);
+          timA = "TIM A";
+          timB = "TIM B";
+          scoreA = 0;
+          scoreB = 0;
+          updateView();
+          ambilJadwal();
+        });
+    }
 
     function tambahTim() {
       const input = document.getElementById("teamInput");
@@ -159,61 +207,11 @@
           scoreB = data.matchAktif.scoreB || 0;
           updateView();
           alert(`Match aktif: ${timA} vs ${timB}`);
+          ambilJadwal();
         }
       });
     }
 
-    function change(team, delta) {
-      if (team === 'A') scoreA += delta;
-      if (team === 'B') scoreB += delta;
-      updateScoreServer();
-      updateView();
-    }
-
-    function resetScores() {
-      scoreA = 0;
-      scoreB = 0;
-      updateScoreServer();
-      updateView();
-    }
-
-    function updateScoreServer() {
-      fetch('/liga/update-skor', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ scoreA, scoreB })
-      });
-    }
-
-    function updateView() {
-      document.getElementById("teamAName").textContent = timA;
-      document.getElementById("teamBName").textContent = timB;
-      document.getElementById("scoreA").textContent = scoreA;
-      document.getElementById("scoreB").textContent = scoreB;
-    }
-
-    function selesaikanMatch() {
-      if (!confirm("Yakin menyelesaikan match ini?")) return;
-      fetch('/liga/selesai', { method: 'POST' })
-        .then(res => res.json())
-        .then(data => {
-          alert(data.message);
-          timA = "TIM A";
-          timB = "TIM B";
-          scoreA = 0;
-          scoreB = 0;
-          updateView();
-          ambilJadwal();
-        });
-    }
-	
-	function toggleKlasemen(show) {
-  ws.send(JSON.stringify({ type: show ? 'showKlasemen' : 'hideKlasemen' }));
-  document.getElementById('statusKlasemen').textContent = 'Klasemen saat ini: ' + (show ? 'Tampil' : 'Tersembunyi');
-}
-
-
-    // Inisialisasi
     ambilDaftarTim();
     ambilJadwal();
   </script>

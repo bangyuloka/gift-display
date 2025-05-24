@@ -24,7 +24,7 @@
       display: none;
     }
     .title {
-      font-size: 3rem;
+      font-size: 2rem;
       font-weight: bold;
       color: gold;
       text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
@@ -33,7 +33,7 @@
     }
     .klasemen-board {
       background: white;
-      padding: 2rem;
+      padding: 1rem;
       border-radius: 1rem;
       box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
       max-width: 80vh;
@@ -83,14 +83,14 @@
 </head>
 <body>
   <div class="container" id="klasemenContainer">
-    <div class="title">📊 KLASEMEN</div>
+    <div class="title">KLASEMEN</div>
     <div class="klasemen-board">
       <table>
         <thead>
           <tr>
-            <th>🔢</th>
+            <th>POS</th>
             <th>Tim</th>
-            <th>Skor</th>
+            <th>Poin</th>
           </tr>
         </thead>
         <tbody id="klasemenBody">
@@ -103,17 +103,12 @@
   <script>
     const klasemenBody = document.getElementById('klasemenBody');
     const klasemenContainer = document.getElementById('klasemenContainer');
-    const ws = new WebSocket(`ws://${location.host}`);
+    
     const ioSocket = io();
 
-    ws.onmessage = (event) => {
-      const msg = JSON.parse(event.data);
-      if (msg.type === 'showKlasemen') {
-        klasemenContainer.classList.remove('hidden');
-      } else if (msg.type === 'hideKlasemen') {
-        klasemenContainer.classList.add('hidden');
-      }
-    };
+    ioSocket.on('showKlasemen', () => klasemenContainer.classList.remove('hidden'));
+	ioSocket.on('hideKlasemen', () => klasemenContainer.classList.add('hidden'));
+
 
     ioSocket.on('updateKlasemen', updateKlasemen);
 
