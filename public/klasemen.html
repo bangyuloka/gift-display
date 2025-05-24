@@ -17,81 +17,115 @@
       justify-content: center;
       align-items: center;
     }
+    .container {
+      text-align: center;
+    }
+    .title {
+      font-size: 2rem;
+      font-weight: bold;
+      color: gold;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+      background: transparent;
+      margin-bottom: 1rem;
+    }
     .klasemen-board {
       background: white;
       padding: 1rem;
       border-radius: 1rem;
       box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
-	  width:80vw;
-	  max-width: 80vh;      
+      max-width: 80vh;
       overflow-y: auto;
     }
     table {
       width: 100%;
-      border-collapse: collapse;
+      border-collapse: separate;
+      border-spacing: 0 0.5rem;
     }
     th, td {
       padding: 0.75rem 1rem;
       text-align: left;
-      border-bottom: 1px solid #ccc;
     }
     th {
       background-color: #007bff;
       color: white;
       text-transform: uppercase;
     }
-    tr:last-child td {
-      border-bottom: none;
+    tr {
+      background: white;
+      border-radius: 0.5rem;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+    tr:hover {
+      background: rgba(0, 123, 255, 0.1);
+    }
+    td.posisi {
+      font-weight: bold;
+      color: #555;
+      text-align: center;
+      width: 40px;
+    }
+    td.tim {
+      font-weight: bold;
+      font-size: 1.2rem;
+      color: #333;
+    }
+    td.skor {
+      font-weight: bold;
+      font-size: 1.2rem;
+      text-align: right;
+      color: #000;
     }
   </style>
 </head>
 <body>
-  <div class="klasemen-board">
-    <table>
-      <thead>
-        <tr>
-          <th>Tim</th>
-          <th>Skor</th>
-        </tr>
-      </thead>
-      <tbody id="klasemenBody">
-        <tr><td colspan="2">Memuat...</td></tr>
-      </tbody>
-    </table>
+  <div class="container">
+    <div class="title">KLASEMEN</div>
+    <div class="klasemen-board">
+      <table>
+        <thead>
+          <tr>
+            <th>🔢</th>
+            <th>Tim</th>
+            <th>Skor</th>
+          </tr>
+        </thead>
+        <tbody id="klasemenBody">
+          <tr><td colspan="3">Memuat...</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <script>
     const klasemenBody = document.getElementById('klasemenBody');
 
-// Ambil klasemen saat load
+    // Ambil klasemen saat load
     updateKlasemen();
 
     // Dengarkan update klasemen dari server
-   const socket = io();
-		socket.on('updateKlasemen', () => {
-		updateKlasemen();
-		});
+    const socket = io();
+    socket.on('updateKlasemen', () => {
+      updateKlasemen();
+    });
 
-	
-	
     function updateKlasemen() {
       fetch('/liga/klasemen')
         .then(res => res.json())
         .then(data => {
           if (!data.klasemen || data.klasemen.length === 0) {
-            klasemenBody.innerHTML = '<tr><td colspan="2">Belum ada data klasemen.</td></tr>';
+            klasemenBody.innerHTML = '<tr><td colspan="3">Belum ada data klasemen.</td></tr>';
             return;
           }
-          klasemenBody.innerHTML = data.klasemen.map(row => `
+          klasemenBody.innerHTML = data.klasemen.map((row, index) => `
             <tr>
-              <td>${row.tim}</td>
-              <td>${row.totalSkor}</td>
+              <td class="posisi">${index === 0 ? '🏆 1' : index + 1}</td>
+              <td class="tim">${row.tim}</td>
+              <td class="skor">${row.totalSkor}</td>
             </tr>
           `).join('');
         });
     }
-
-    
   </script>
 </body>
 </html>
