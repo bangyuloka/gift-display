@@ -50,8 +50,8 @@ wss.on('connection', ws => {
   ws.on('message', msg => {
     try {
       const data = JSON.parse(msg);
-      if (data.type === 'showKlasemen') {
-        broadcastWS({ type: 'showKlasemen' });
+      if (data.type === 'showKlasemen' || data.type === 'hideKlasemen') {
+        broadcastWS({ type: data.type });
       }
     } catch (_) {}
   });

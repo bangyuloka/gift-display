@@ -59,7 +59,20 @@
     <ul id="daftarTim"></ul>
   </div>
 
+  <div class="section">
+    <h2>🎛️ Kontrol Klasemen</h2>
+    <button onclick="toggleKlasemen(true)">Tampilkan Klasemen</button>
+    <button onclick="toggleKlasemen(false)">Sembunyikan Klasemen</button>
+	<p id="statusKlasemen">Klasemen saat ini: Tampil</p>
+  </div>
+
   <script>
+    const ws = new WebSocket(`ws://${location.host}`);
+
+    function toggleKlasemen(show) {
+      ws.send(JSON.stringify({ type: show ? 'showKlasemen' : 'hideKlasemen' }));
+    }
+
     let scoreA = 0, scoreB = 0;
     let timA = "TIM A", timB = "TIM B";
 
@@ -113,18 +126,17 @@
     }
 
     function tampilkanJadwal(matches) {
-  const html = matches.map((m, i) => {
-    const sudahSelesai = m.done;
-    const skor = (m.scoreA ?? '-') + ' - ' + (m.scoreB ?? '-');
-    return `<li>Match ${i + 1}: ${m.teamA} vs ${m.teamB} ${
-      sudahSelesai
-        ? `<span style="color: green; font-weight: bold;">✅ Selesai (${skor})</span>`
-        : `<button onclick="setMatchAktif(${i})">Aktifkan</button>`
-    }</li>`;
-  }).join('');
-  document.getElementById("daftarJadwal").innerHTML = html;
-}
-
+      const html = matches.map((m, i) => {
+        const sudahSelesai = m.done;
+        const skor = (m.scoreA ?? '-') + ' - ' + (m.scoreB ?? '-');
+        return `<li>Match ${i + 1}: ${m.teamA} vs ${m.teamB} ${
+          sudahSelesai
+            ? `<span style="color: green; font-weight: bold;">✅ Selesai (${skor})</span>`
+            : `<button onclick="setMatchAktif(${i})">Aktifkan</button>`
+        }</li>`;
+      }).join('');
+      document.getElementById("daftarJadwal").innerHTML = html;
+    }
 
     function ambilJadwal() {
       fetch('/liga/jadwal')
@@ -194,6 +206,12 @@
           ambilJadwal();
         });
     }
+	
+	function toggleKlasemen(show) {
+  ws.send(JSON.stringify({ type: show ? 'showKlasemen' : 'hideKlasemen' }));
+  document.getElementById('statusKlasemen').textContent = 'Klasemen saat ini: ' + (show ? 'Tampil' : 'Tersembunyi');
+}
+
 
     // Inisialisasi
     ambilDaftarTim();
