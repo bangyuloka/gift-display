@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Overlay Skor</title>
+  <title>Skor</title>
   <script src="/socket.io/socket.io.js"></script>
   <style>
     html, body {
       margin: 0;
       padding: 0;
       height: 100vh;
-      background: transparent;
+      background: #f0f8ff;
       font-family: Arial, sans-serif;
       overflow: hidden;
       display: flex;
@@ -19,38 +19,61 @@
     }
     .scoreboard {
       display: flex;
-      align-items: flex-start;
-      gap: 5rem;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
       padding: 1rem;
     }
     .team {
       text-align: center;
     }
     .team-name {
-      font-size: 2rem;
-      font-weight: bold;
-      color: white;
-      text-shadow: 2px 2px 5px rgba(0,0,0,0.8), -2px -2px 5px rgba(0,0,0,0.8);
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #fff;
+      text-shadow: 0 0 5px rgba(0,0,0,0.8);
       margin-bottom: 1rem;
+      transition: all 0.3s ease;
     }
     .score {
       background: yellow;
       font-size: 4rem;
       font-weight: bold;
       color: black;
-      padding: 1rem 0;
-      border-radius: 1rem;
-      box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
-      width: 120px;
+      padding: 1rem 2rem;
+      border-radius: 1.5rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      min-width: 120px;
       text-align: center;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+    .score.animate {
+      transform: scale(1.2);
+      background: #ff0;
     }
     .vs-text {
-      font-size: 5rem;
+      font-size: 4rem;
       font-weight: bold;
       color: black;
+      text-shadow: 0 0 5px rgba(0,0,0,0.8);
       align-self: center;
-      min-width: 80px;
-      text-align: center;
+    }
+    @media (max-width: 600px) {
+      .scoreboard {
+        flex-direction: column;
+        gap: 1rem;
+      }
+      .vs-text {
+        font-size: 3rem;
+      }
+      .team-name {
+        font-size: 2rem;
+      }
+      .score {
+        font-size: 3.5rem;
+        padding: 0.75rem 1.5rem;
+      }
     }
   </style>
 </head>
@@ -70,6 +93,12 @@
   <script>
     const socket = io();
 
+    function animateScore(id) {
+      const el = document.getElementById(id);
+      el.classList.add('animate');
+      setTimeout(() => el.classList.remove('animate'), 300);
+    }
+
     socket.on('matchAktif', (match) => {
       if (!match) {
         document.getElementById('teamAName').textContent = '-';
@@ -83,9 +112,11 @@
       document.getElementById('teamBName').textContent = match.teamB;
       document.getElementById('scoreA').textContent = match.scoreA || 0;
       document.getElementById('scoreB').textContent = match.scoreB || 0;
+
+      animateScore('scoreA');
+      animateScore('scoreB');
     });
 
-    // Ambil match aktif saat load
     fetch('/liga/match-aktif')
       .then(res => res.json())
       .then(({ matchAktif }) => {
